@@ -154,14 +154,20 @@ int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray)
 	for (i = 0; i < sizeof(infoHeader); i++)
 		fscanf(begin, "%c", (char *)(ih) + i);
 
-	overflow = ((ih->width * ih->depth) / 8) % 4;
+	rowDataSize = ((ih->width * ih->depth) / 8);
+
+	overflow = rowDataSize % 4;
 
 	if (overflow != 0)
 		rowPadding = 4 - overflow;
 
-	rowSize = ((ih->width * ih->depth) / 8) + rowPadding;
+	rowSize = rowDataSize + rowPadding;
 
 	pixelArray = malloc(rowSize * ih->height);
- 
+
+	for (i = 0; i < ih->height * rowSize; i++)
+		fscanf(begin, "%c", (char *)(pixelArray + i);
+	}
+
 	return 0;
 }
