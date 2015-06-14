@@ -97,19 +97,22 @@ int CreateCRC(chunk *target);
 // POST: target's CRC field has a valid CRC that corresponds to its data
 
 int main() {
-	FILE *file;
+	FILE *input;
+	FILE *output;
 	fileHeader fh;
 	infoHeader ih;
 	void *pixelArray = NULL;
 
-	file = fopen("fireworks w crowd.bmp", "r");
+	input = fopen("fireworks w crowd.bmp", "r");
 
 	memset(&fh, 0x0, sizeof(fileHeader));
 	memset(&ih, 0x0, sizeof(infoHeader));
 
-	ReadBMP(file, &fh, &ih, pixelArray);
+	ReadBMP(input, &fh, &ih, pixelArray);
 
-	printf("File Header\n");
+	fclose(input);
+
+	/*printf("File Header\n");
 	printf("format : %u\n", fh.format);
 	printf("file size : %u\n", fh.size);
 	printf("reserved1 : %u\n", fh.reserved1);
@@ -127,7 +130,10 @@ int main() {
 	printf("xRes : %u\n", ih.xRes);
 	printf("yRes : %u\n", ih.yRes);
 	printf("colorTableSize : %u\n", ih.colorTableSize);
-	printf("colorImportant : %u\n", ih.colorImportant);
+	printf("colorImportant : %u\n", ih.colorImportant);*/
+
+	output = fopen("fireworks w crowd.png", "w");
+	fclose(output);
 
 	return 0;
 }

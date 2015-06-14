@@ -27,13 +27,10 @@ typedef struct infoHeader {
 	uint32_t colorImportant;		// number of colors in the color table considered important for rendering
 } infoHeader;
 
-<<<<<<< HEAD
-int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray);
-=======
 typedef struct chunk {
-	uint32_t length; 			//chunck length
-	uint32_t chunkType; 		//4 - byte chunk type code
-	void *data;					//pointer to dynamically allocated memory space(?)
+	uint32_t length;			//chunck length
+	uint32_t chunkType;			//4 - byte chunk type code
+	void *data;				//pointer to dynamically allocated memory space(?)
 	uint32_t CRC;				//Cyclic Redundancy Check, always present
 } chunk;
 
@@ -42,9 +39,9 @@ typedef struct ihdr {
 	uint32_t height;			//image height dimensions in pixels. ~~~~~
 	uint8_t bitDepth;			//num of bits p sample/per palette index
 	uint8_t colorType;			//single-byte int that describes interpretation of the image data
-	uint8_t compressionMethod;	//will always be 0 for png stnd
-	uint8_t filterMethod;		//will always be 0 for png stnd
-	uint8_t interlaceMethod;	//will always be 0 for png stnd
+	uint8_t compressionMethod;		//will always be 0 for png stnd
+	uint8_t filterMethod;			//will always be 0 for png stnd
+	uint8_t interlaceMethod;		//will always be 0 for png stnd
 } ihdr
 
 typedef struct plte {
@@ -54,8 +51,7 @@ typedef struct plte {
 } plte;
 
 
-int ReadFile(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray);
->>>>>>> 8910f781645be57cee3f92437806cf9045a1f5e0
+int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray);
 // PRE:  begin points to the address of the first byte of a valid BMP image file
 //       fh points to a chunk of memory that is the size of the struct fileHeader
 //       ih points to a chunk of memory that is the size of the struct infoHeader
@@ -100,21 +96,23 @@ int CreateCRC(chunk *target);
 // PRE:  target points to a chunk for which a CRC is needed
 // POST: target's CRC field has a valid CRC that corresponds to its data
 
-
 int main() {
-	FILE *file;
+	FILE *input;
+	FILE *output;
 	fileHeader fh;
 	infoHeader ih;
 	void *pixelArray = NULL;
 
-	file = fopen("fireworks w crowd.bmp", "r");
+	input = fopen("fireworks w crowd.bmp", "r");
 
 	memset(&fh, 0x0, sizeof(fileHeader));
 	memset(&ih, 0x0, sizeof(infoHeader));
 
-	ReadBMP(file, &fh, &ih, pixelArray);
+	ReadBMP(input, &fh, &ih, pixelArray);
 
-	printf("File Header\n");
+	fclose(input);
+
+	/*printf("File Header\n");
 	printf("format : %u\n", fh.format);
 	printf("file size : %u\n", fh.size);
 	printf("reserved1 : %u\n", fh.reserved1);
@@ -132,7 +130,10 @@ int main() {
 	printf("xRes : %u\n", ih.xRes);
 	printf("yRes : %u\n", ih.yRes);
 	printf("colorTableSize : %u\n", ih.colorTableSize);
-	printf("colorImportant : %u\n", ih.colorImportant);
+	printf("colorImportant : %u\n", ih.colorImportant);*/
+
+	output = fopen("fireworks w crowd.png", "w");
+	fclose(output);
 
 	return 0;
 }
