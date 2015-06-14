@@ -19,12 +19,12 @@ typedef struct infoHeader {
 	int32_t height;				// height of image
 	uint16_t planes;			// number of planes
 	uint16_t depth;				// color depth (1, 4, 8, 24)
-	uint32_t compression;			// compression type (0:BI_RGB, 1:BI_RLE8, 2:BI_RLE4)
+	uint32_t compression;		// compression type (0:BI_RGB, 1:BI_RLE8, 2:BI_RLE4)
 	uint32_t imgSize;			// size of pixel array in bytes
 	uint32_t xRes;				// horizontal resolution
 	uint32_t yRes;				// vertical resolution
-	uint32_t colorTableSize;		// number of elements in color table
-	uint32_t colorImportant;		// number of colors in the color table considered important for rendering
+	uint32_t colorTableSize;	// number of elements in color table
+	uint32_t colorImportant;	// number of colors in the color table considered important for rendering
 } infoHeader;
 
 typedef struct chunk {
@@ -159,3 +159,103 @@ int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray)
  
 	return 0;
 }
+
+int CreateIHDRChunk(infoHeader ih, chunk *target) {
+	target = (chunk *)malloc(sizeof(chunk));
+	target->length = sizeof(ihdr);
+	target->chunkType = "IHDR";
+	target->data = (ihdr *)malloc(sizeof(ihdr));
+	target->data->width = ih.width;
+	target->data->height = ih.height;
+	target->data->bitDepth = (ih.depth/3);
+	target->data->colorType = 2;
+	target->data->compressionMethod = 0;
+	target->data->filterMethod = 0;
+	target->data->interlaceMethod = 0;
+	
+	CreateCRC(target);
+	
+	return 0;
+}
+
+int CreateIDATChunk(infoHeader ih, void *pixelArray, chunk *target) {
+	int i;
+	int j;
+	int overflow;
+	int rowPadding;
+	int rowSize;
+	
+	target = (chunk *)malloc(sizeof(chunk));
+	target->length = ih.imgSize;
+	target->chunkType = "IDAT";	
+	
+	overflow = ((ih->width * ih->depth) / 8) % 4);
+	if (overflow != 0)
+		rowPadding = 4 -overflow;
+	
+	rowSize = ((ih->width * ih->height) / 8) + rowPadding;
+	
+	target->data = malloc(ih.height * rowSize);
+	
+	for (i = ih.height; i >= 0; i--){
+		for (j = 0; j < rowSize; j++)
+			*(target->data + (((ih.height - 1) - i) * rowSize) + j) = *(pixelArray + (i * rowSize) + j);
+	}
+	
+	CreateCRC(target);
+	
+	return 0;
+}
+
+int CreateIENDChunk(chunk *target) {
+	target = (chunk *)malloc(sizeof(chunk));
+	target->length = 0;
+	target->chunkType = "IEND";
+	
+	CreateCRC(target);
+	
+	return 0;
+}
+
+int BMPtoPNG(fileHeader fh, infoHeader ih, void *colorTable, void *pixelArray, FILE *target) {
+	int i;
+	
+	chunk *ihdrChunk = NULL;
+	chunk *idatChunk = NULL;
+	chunk *iendChunk = NULL;
+	
+	CreateIHDRChunk(ih, ihdrChunk);
+	CreateIDATChunk(ih, pixelArray, idatChunk);
+	CreateIENDChunk(iendChunk);
+	
+	//print IHDR info to file
+	fprintf(target, "%u", ihdrChunk->length);
+	fprintf(target, "%u", ihdrChunk->type);
+	for(i = 0; i < ihdrChunk->length; i++)
+		fprintf(target, "%c", *((char*)ihdrChunk->data + i);
+	fprintf(target, "%u", ihdrChunk->CRC);
+	
+	//print IDAT info to file
+	fprintf(target, "%u", idatChunk->length);
+	fprintf(target, "%u", idatChunk->type);
+	for(i = 0; i < idatChunk->length; i++)
+		fprintf(target, "%c", *((char*)idatChunk->data + i);
+	fprintf(target, "%u", idatChunk->CRC);
+	
+	//print IEND info to file
+	fprintf(target, "%u", iendChunk->length);
+	fprintf(target, "%u", iendChunk->type);
+	for(i = 0; i < iendChunk->length; i++)
+		fprintf(target, "%c", *((char*)iendChunk->data + i);
+	fprintf(target, "%u", iendChunk->CRC);
+}
+
+
+
+
+
+
+
+
+
+
