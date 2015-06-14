@@ -27,6 +27,30 @@ typedef struct infoHeader {
 	uint32_t colorImportant;		// number of colors in the color table considered important for rendering
 } infoHeader;
 
+typedef struct chunk {
+	uint32_t length; 			//chunck length
+	uint32_t chunkType; 		//4 - byte chunk type code
+	void *data;					//pointer to dynamically allocated memory space(?)
+	uint32_t CRC;				//Cyclic Redundancy Check, always present
+} chunk;
+
+typedef struct ihdr {
+	uint32_t width				//image width dimensions in pixels. 0 is invalid
+	uint32_t height;			//image height dimensions in pixels. ~~~~~
+	uint8_t bitDepth;			//num of bits p sample/per palette index
+	uint8_t colorType;			//single-byte int that describes interpretation of the image data
+	uint8_t compressionMethod;	//will always be 0 for png stnd
+	uint8_t filterMethod;		//will always be 0 for png stnd
+	uint8_t interlaceMethod;	//will always be 0 for png stnd
+} ihdr
+
+typedef struct plte {
+	uint8_t red;				//(0 = black, 255 = red)
+	uint8_t green;				//(0 = black, 255 = green)
+	uint8_t blue;				//(0 = black, 255 = blue)
+} plte;
+
+
 int ReadFile(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray);
 // PRE:  begin points to the address of the first byte of a valid BMP image file
 //       fh points to a chunk of memory that is the size of the struct fileHeader
