@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <zlib.h>
 
 typedef struct fileHeader {
 	uint16_t format;			// format of file; BM for bitmap
@@ -97,19 +98,22 @@ int CreateCRC(chunk *target);
 // POST: target's CRC field has a valid CRC that corresponds to its data
 
 int main() {
-	FILE *file;
+	FILE *input;
+	FILE *output;
 	fileHeader fh;
 	infoHeader ih;
 	void *pixelArray = NULL;
 
-	file = fopen("fireworks w crowd.bmp", "r");
+	input = fopen("fireworks w crowd.bmp", "r");
 
 	memset(&fh, 0x0, sizeof(fileHeader));
 	memset(&ih, 0x0, sizeof(infoHeader));
 
-	ReadBMP(file, &fh, &ih, pixelArray);
+	ReadBMP(input, &fh, &ih, pixelArray);
 
-	printf("File Header\n");
+	fclose(input);
+
+	/*printf("File Header\n");
 	printf("format : %u\n", fh.format);
 	printf("file size : %u\n", fh.size);
 	printf("reserved1 : %u\n", fh.reserved1);
@@ -127,7 +131,10 @@ int main() {
 	printf("xRes : %u\n", ih.xRes);
 	printf("yRes : %u\n", ih.yRes);
 	printf("colorTableSize : %u\n", ih.colorTableSize);
-	printf("colorImportant : %u\n", ih.colorImportant);
+	printf("colorImportant : %u\n", ih.colorImportant);*/
+
+	output = fopen("fireworks w crowd.png", "w");
+	fclose(output);
 
 	return 0;
 }
@@ -148,15 +155,32 @@ int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray)
 	for (i = 0; i < sizeof(infoHeader); i++)
 		fscanf(begin, "%c", (char *)(ih) + i);
 
-	overflow = ((ih->width * ih->depth) / 8) % 4;
+	rowDataSize = ((ih->width * ih->depth) / 8);
+
+	overflow = rowDataSize % 4;
 
 	if (overflow != 0)
 		rowPadding = 4 - overflow;
 
-	rowSize = ((ih->width * ih->depth) / 8) + rowPadding;
+	rowSize = rowDataSize + rowPadding;
 
 	pixelArray = malloc(rowSize * ih->height);
- 
+
+	for (i = 0; i < ih->height * rowSize; i++)
+		fscanf(begin, "%c", (char *)(pixelArray + i);
+	}
+
+	return 0;
+}
+
+int CreateCRC(chunk *target)
+{
+	uint32_t crc = crc32(0L, Z_NULL, 0);
+
+	crc = crc32(crc, target->data, target->length);
+
+	target->CRC = crc;
+
 	return 0;
 }
 
