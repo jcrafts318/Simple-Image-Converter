@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <zlib.h>
 
 typedef struct fileHeader {
 	uint16_t format;			// format of file; BM for bitmap
@@ -168,6 +169,17 @@ int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void *pixelArray)
 	for (i = 0; i < ih->height * rowSize; i++)
 		fscanf(begin, "%c", (char *)(pixelArray + i);
 	}
+
+	return 0;
+}
+
+int CreateCRC(chunk *target)
+{
+	uint32_t crc = crc32(0L, Z_NULL, 0);
+
+	crc = crc32(crc, target->data, target->length);
+
+	target->CRC = crc;
 
 	return 0;
 }
