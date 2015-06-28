@@ -181,12 +181,19 @@ int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void **pixelArray)
 
 int CreateCRC(chunk *target)
 {
-	uint32_t crc = crc32(0, NULL, 0);
+	uint32_t crc;
+	void *crcData;
 
-	crc = crc32(crc, (void *)(&(target->chunkType)), 4);
-	crc = crc32(crc, target->data, target->length);
+	crcData = malloc(ntohl(target->length) + 4);
 
-	target->CRC = crc;
+	*((uint32_t *)crcData) = target->chunkType;
+	memcpy(crcData + 4, target->data, ntohl(target->length));
+
+	free(crcData);
+
+	crc = crc32(0, crcData, ntohl(target->length) + 4);
+
+	target->CRC = htonl(crc);
 
 	return 0;
 }
