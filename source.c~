@@ -181,7 +181,7 @@ int ReadBMP(FILE *begin, fileHeader *fh, infoHeader *ih, void **pixelArray)
 
 int CreateCRC(chunk *target)
 {
-	uint32_t crc = crc32(0, NULL, 0);
+	uint32_t crc = crc32(NULL, NULL, 0);
 
 	crc = crc32(crc, target->data, ntohl(target->length));
 

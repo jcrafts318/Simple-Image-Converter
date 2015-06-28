@@ -1,0 +1,23 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+typedef struct chunk {
+	uint32_t length;			//chunk length
+	uint32_t chunkType;			//4 - byte chunk type code
+	void *data;				//pointer to dynamically allocated memory space(?)
+	uint32_t CRC;				//Cyclic Redundancy Check, always present
+} chunk;
+
+int main()
+{
+	chunk *target = NULL;
+
+	target = (chunk *)malloc(sizeof(chunk));
+
+	target->length = 5;
+
+	free(target);
+
+	return 0;
+}
