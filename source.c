@@ -183,7 +183,8 @@ int CreateCRC(chunk *target)
 {
 	uint32_t crc = crc32(0, NULL, 0);
 
-	crc = crc32(crc, target->data, ntohl(target->length));
+	crc = crc32(crc, (void *)(&(target->chunkType)), 4);
+	crc = crc32(crc, target->data, target->length);
 
 	target->CRC = crc;
 
